@@ -2,7 +2,8 @@
 
 # chartli
 
-CLI for rendering charts in terminals from numeric text data.
+CLI for rendering charts in terminals from numeric text data. `chartli` turns plain numbers into terminal charts. ascii, spark, bars, columns, heatmap, unicode, braille, svg. 
+
 
 ## Install
 
