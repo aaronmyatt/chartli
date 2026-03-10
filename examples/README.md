@@ -7,7 +7,10 @@ All examples are data-file driven from `examples/assets/`.
 - `examples/assets/core-single-series.txt`
 - `examples/assets/core-multi-series.txt`
 - `examples/assets/image-data.txt`
+- `examples/assets/image-single-series.txt`
 - `examples/assets/image-columns-variant.txt`
+- `examples/assets/weekly-signups.txt`
+- `examples/assets/weekly-metrics.txt`
 - `examples/assets/output/`
 
 ## Core commands
@@ -33,8 +36,15 @@ All examples are data-file driven from `examples/assets/`.
 - `pnpm chartli examples/assets/image-data.txt -t braille -w 16 -h 6`
 - `pnpm chartli examples/assets/image-data.txt -t svg -m lines -w 320 -h 120 | sed -n '/^<?xml/,$p' > examples/assets/output/image-chart.svg`
 
+## Labeled commands
+
+- `pnpm chartli examples/assets/weekly-signups.txt -t ascii -w 28 -h 8 --first-column-x --data-labels`
+- `pnpm chartli examples/assets/weekly-metrics.txt -t columns -h 8 --first-column-x --x-axis-label Metrics --y-axis-label Count --data-labels`
+- `pnpm chartli examples/assets/weekly-signups.txt -t svg -m lines -w 320 -h 120 --first-column-x --data-labels | sed -n '/^<?xml/,$p' > examples/assets/output/weekly-signups-chart.svg`
+
 ## Run grouped examples
 
 - `pnpm run example:kitchen-sink`
 - `pnpm run example:image-set:kitchen-sink`
+- `pnpm run example:labeled:kitchen-sink`
 - `pnpm run example:all-kitchen-sink`

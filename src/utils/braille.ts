@@ -1,3 +1,4 @@
+import { type ChartAnnotations, centerText } from './chart-annotations.js';
 import { type NormalizeResult } from './normalize.js';
 
 // Braille patterns - 2 dots wide, 4 dots tall per character
@@ -18,7 +19,7 @@ function brailleChar(dots: ReadonlyArray<boolean>): string {
 	return String.fromCodePoint(0x2800 + bits);
 }
 
-export interface BrailleOptions {
+export interface BrailleOptions extends ChartAnnotations {
 	readonly width?: number;
 	readonly height?: number;
 }
@@ -42,11 +43,20 @@ export function renderBraille({
 
 	// Create dot grid per column
 	const lines: string[] = [];
+	if (options?.yAxisLabel) {
+		lines.push(options.yAxisLabel);
+		lines.push('');
+	}
 
 	for (let colIdx = 0; colIdx < numCols; colIdx++) {
 		const dotGrid: boolean[][] = Array.from({ length: dotHeight }, () =>
 			new Array(dotWidth).fill(false) as boolean[],
 		);
+
+		if (options?.seriesLabels?.[colIdx]) {
+			if (lines.length > 0) lines.push('');
+			lines.push(options.seriesLabels[colIdx] ?? '');
+		}
 
 		for (let rowIdx = 0; rowIdx < numRows; rowIdx++) {
 			const y = data[rowIdx]?.[colIdx] ?? 0;
@@ -81,6 +91,11 @@ export function renderBraille({
 			}
 			lines.push(rowStr);
 		}
+	}
+
+	if (options?.xAxisLabel) {
+		lines.push('');
+		lines.push(centerText(options.xAxisLabel, Math.max(charWidth, options.xAxisLabel.length)));
 	}
 
 	return lines.join('\n');

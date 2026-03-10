@@ -4,7 +4,12 @@ import { createInterface } from 'node:readline';
 import ora from 'ora';
 import pc from 'picocolors';
 import { z } from 'zod';
-import { parseData, normalizeData } from '../utils/normalize.js';
+import {
+	type ChartAnnotations,
+	formatValue,
+	normalizeLabels,
+} from '../utils/chart-annotations.js';
+import { normalizeData, parseChartInput } from '../utils/normalize.js';
 import { renderSvg } from '../utils/svg.js';
 import { renderAscii } from '../utils/ascii.js';
 import { renderUnicode } from '../utils/unicode.js';
@@ -27,6 +32,83 @@ const ChartTypeSchema = z.enum([
 type ChartType = z.infer<typeof ChartTypeSchema>;
 type ChartMode = 'circles' | 'lines';
 
+function parseLabelList(value: string | undefined): ReadonlyArray<string> | undefined {
+	if (!value) return undefined;
+
+	const labels = value
+		.split(',')
+		.map((item) => item.trim())
+		.filter(Boolean);
+
+	return labels.length > 0 ? labels : undefined;
+}
+
+function prepareChartInput({
+	input,
+	xAxisLabel,
+	yAxisLabel,
+	xLabels,
+	seriesLabels,
+	firstColumnX,
+}: {
+	input: string;
+	xAxisLabel?: string;
+	yAxisLabel?: string;
+	xLabels?: string;
+	seriesLabels?: string;
+	firstColumnX?: boolean;
+}): {
+	rows: ReadonlyArray<ReadonlyArray<number>>;
+	annotations: ChartAnnotations;
+} {
+	const parsed = parseChartInput(input);
+	const requestedXLabels = parseLabelList(xLabels);
+	const requestedSeriesLabels = parseLabelList(seriesLabels);
+	let rows = parsed.rows.map((row) => [...row]);
+
+	if (firstColumnX) {
+		const numCols = rows[0]?.length ?? 0;
+		if (numCols < 2) {
+			throw new Error(
+				'The --first-column-x option requires at least two numeric columns.',
+			);
+		}
+
+		rows = rows.map((row) => row.slice(1));
+	}
+
+	const numSeries = rows[0]?.length ?? 0;
+	const annotations: ChartAnnotations = {
+		xAxisLabel:
+			xAxisLabel?.trim() ||
+			(firstColumnX ? parsed.headers[0]?.trim() : undefined) ||
+			undefined,
+		yAxisLabel:
+			yAxisLabel?.trim() ||
+			(firstColumnX && parsed.headers.length === 2
+				? parsed.headers[1]?.trim()
+				: undefined) ||
+			undefined,
+		xLabels: requestedXLabels
+			? normalizeLabels(requestedXLabels, rows.length, (index) => String(index + 1))
+			: firstColumnX
+				? normalizeLabels(
+						parsed.rows.map((row, index) => formatValue(row[0] ?? index + 1)),
+						rows.length,
+						(index) => String(index + 1),
+					)
+				: undefined,
+		seriesLabels: normalizeLabels(
+			requestedSeriesLabels ??
+				(firstColumnX ? parsed.headers.slice(1) : parsed.headers),
+			numSeries,
+			(index) => `S${index + 1}`,
+		),
+	};
+
+	return { rows, annotations };
+}
+
 async function readStdin(): Promise<string> {
 	const lines: string[] = [];
 	const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
@@ -42,28 +124,62 @@ function renderChart({
 	width,
 	height,
 	mode,
+	xAxisLabel,
+	yAxisLabel,
+	xLabels,
+	seriesLabels,
+	showDataLabels,
+	firstColumnX,
 }: {
 	input: string;
 	type: ChartType;
 	width?: number;
 	height?: number;
 	mode?: ChartMode;
+	xAxisLabel?: string;
+	yAxisLabel?: string;
+	xLabels?: string;
+	seriesLabels?: string;
+	showDataLabels?: boolean;
+	firstColumnX?: boolean;
 }): string {
-	const rows = parseData(input);
+	const { rows, annotations } = prepareChartInput({
+		input,
+		xAxisLabel,
+		yAxisLabel,
+		xLabels,
+		seriesLabels,
+		firstColumnX,
+	});
 	const normalized = normalizeData(rows);
+	const chartOptions = {
+		...annotations,
+		showDataLabels,
+	};
 
 	if (type === 'svg')
-		return renderSvg({ normalized, options: { width, height, mode } });
+		return renderSvg({ normalized, options: { width, height, mode, ...chartOptions } });
 	if (type === 'ascii')
-		return renderAscii({ normalized, options: { width, height } });
-	if (type === 'unicode') return renderUnicode({ normalized, options: { width } });
+		return renderAscii({
+			normalized,
+			options: { width, height, ...chartOptions },
+		});
+	if (type === 'unicode')
+		return renderUnicode({ normalized, options: { width, ...chartOptions } });
 	if (type === 'braille')
-		return renderBraille({ normalized, options: { width, height } });
-	if (type === 'spark') return renderSpark({ normalized });
-	if (type === 'bars') return renderBars({ normalized, options: { width } });
+		return renderBraille({
+			normalized,
+			options: { width, height, ...chartOptions },
+		});
+	if (type === 'spark') return renderSpark({ normalized, options: chartOptions });
+	if (type === 'bars')
+		return renderBars({ normalized, options: { width, ...chartOptions } });
 	if (type === 'columns')
-		return renderColumns({ normalized, options: { height } });
-	return renderHeatmap({ normalized });
+		return renderColumns({
+			normalized,
+			options: { height, ...chartOptions },
+		});
+	return renderHeatmap({ normalized, options: chartOptions });
 }
 
 function registerChartOptions(cmd: Command, withDescription = true): Command {
@@ -81,6 +197,26 @@ function registerChartOptions(cmd: Command, withDescription = true): Command {
 		.option('-w, --width <number>', 'Chart width', parseInt)
 		.option('-h, --height <number>', 'Chart height', parseInt)
 		.option('-m, --mode <mode>', 'SVG mode: circles or lines', 'circles')
+		.option('--x-axis-label <label>', 'Title to render for the x-axis')
+		.option('--y-axis-label <label>', 'Title to render for the y-axis')
+		.option(
+			'--x-labels <labels>',
+			'Comma-separated labels for x-axis ticks or row labels',
+		)
+		.option(
+			'--series-labels <labels>',
+			'Comma-separated labels for plotted series or categories',
+		)
+		.option(
+			'--data-labels',
+			'Show raw values near plotted data when supported',
+			false,
+		)
+		.option(
+			'--first-column-x',
+			'Treat the first numeric column as x labels instead of a plotted series',
+			false,
+		)
 		.action(
 			async (
 				file: string | undefined,
@@ -89,6 +225,12 @@ function registerChartOptions(cmd: Command, withDescription = true): Command {
 					width?: number;
 					height?: number;
 					mode?: ChartMode;
+					xAxisLabel?: string;
+					yAxisLabel?: string;
+					xLabels?: string;
+					seriesLabels?: string;
+					dataLabels?: boolean;
+					firstColumnX?: boolean;
 				},
 				command: Command,
 			) => {
@@ -119,6 +261,12 @@ function registerChartOptions(cmd: Command, withDescription = true): Command {
 						width: opts.width,
 						height: opts.height,
 						mode,
+						xAxisLabel: opts.xAxisLabel,
+						yAxisLabel: opts.yAxisLabel,
+						xLabels: opts.xLabels,
+						seriesLabels: opts.seriesLabels,
+						showDataLabels: opts.dataLabels,
+						firstColumnX: opts.firstColumnX,
 					});
 					spinner.stop();
 					console.log(output);

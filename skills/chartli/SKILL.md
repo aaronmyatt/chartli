@@ -34,19 +34,29 @@ npm i -g chartli
 - Read from stdin when no file is passed
 - Control output dimensions with `--width` and `--height`
 - Render SVG with `--mode circles|lines`
+- Add `x` and `y` axis titles with `--x-axis-label` and `--y-axis-label`
+- Add custom tick/category labels with `--x-labels` and `--series-labels`
+- Show raw values on the plotted data with `--data-labels`
+- Promote the first numeric column into x-axis labels with `--first-column-x`
 
 ## Command templates
 
 From file:
 
 ```sh
-npx chartli <file> -t <type> [--width N] [--height N] [--mode circles|lines]
+npx chartli <file> -t <type> [--width N] [--height N] [--mode circles|lines] [--x-axis-label LABEL] [--y-axis-label LABEL] [--x-labels a,b,c] [--series-labels foo,bar] [--data-labels] [--first-column-x]
 ```
 
 From stdin:
 
 ```sh
 printf 'x y\n1 10\n2 20\n3 15\n' | npx chartli -t ascii -w 24 -h 8
+```
+
+Labeled two-column chart:
+
+```sh
+printf 'day value\n1 10\n2 20\n3 15\n' | npx chartli -t ascii -w 24 -h 8 --first-column-x --data-labels
 ```
 
 Per-type examples:
@@ -72,6 +82,8 @@ day sales costs profit
 2 14 9 5
 3 12 11 3
 ```
+
+When `--first-column-x` is set, the first numeric column becomes the x-axis labels. If a header row exists, chartli uses the first header cell as the x-axis title and the remaining headers as series labels. For common two-column input, the second header cell becomes the y-axis title.
 
 ## Repository example assets
 

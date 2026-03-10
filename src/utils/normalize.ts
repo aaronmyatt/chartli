@@ -3,29 +3,47 @@
 
 export interface NormalizeResult {
 	readonly data: ReadonlyArray<ReadonlyArray<number>>;
+	readonly raw: ReadonlyArray<ReadonlyArray<number>>;
 	readonly min: ReadonlyArray<number>;
 	readonly max: ReadonlyArray<number>;
 }
 
-export function parseData(input: string): ReadonlyArray<ReadonlyArray<number>> {
+export interface ParsedChartInput {
+	readonly headers: ReadonlyArray<string>;
+	readonly rows: ReadonlyArray<ReadonlyArray<number>>;
+}
+
+export function parseChartInput(input: string): ParsedChartInput {
 	const lines = input
 		.trim()
 		.split('\n')
 		.filter((line) => line.trim() !== '');
 
+	if (lines.length === 0) {
+		return { headers: [], rows: [] };
+	}
+
 	// Check if first line is a header (contains non-numeric values)
 	const firstLine = lines[0] ?? '';
-	const isHeader = firstLine.split(/\s+/).some((val) => /[^-0-9.]/.test(val));
+	const headers = firstLine.split(/\s+/);
+	const isHeader = headers.some((val) => /[^-0-9.]/.test(val));
 
 	const dataLines = isHeader ? lines.slice(1) : lines;
 
-	return dataLines.map((line) => line.trim().split(/\s+/).map(Number));
+	return {
+		headers: isHeader ? headers : [],
+		rows: dataLines.map((line) => line.trim().split(/\s+/).map(Number)),
+	};
+}
+
+export function parseData(input: string): ReadonlyArray<ReadonlyArray<number>> {
+	return parseChartInput(input).rows;
 }
 
 export function normalizeData(
 	rawRows: ReadonlyArray<ReadonlyArray<number>>,
 ): NormalizeResult {
-	if (rawRows.length === 0) return { data: [], min: [], max: [] };
+	if (rawRows.length === 0) return { data: [], raw: [], min: [], max: [] };
 
 	const numCols = rawRows[0]?.length ?? 0;
 
@@ -79,5 +97,5 @@ export function normalizeData(
 		),
 	);
 
-	return { data, min: minVals, max: maxVals };
+	return { data, raw: rawRows.map((row) => [...row]), min: minVals, max: maxVals };
 }

@@ -36,6 +36,40 @@ describe('additional chart renderers', () => {
 		expect(result).toContain('1 2 3');
 	});
 
+	it('renders chart labels for columns and heatmaps', () => {
+		const normalized = normalizeData([
+			[1, 2, 3],
+			[3, 4, 5],
+		]);
+		const columns = renderColumns({
+			normalized,
+			options: {
+				height: 4,
+				xAxisLabel: 'Series',
+				yAxisLabel: 'Value',
+				seriesLabels: ['Sales', 'Costs', 'Profit'],
+				showDataLabels: true,
+			},
+		});
+		const heatmap = renderHeatmap({
+			normalized,
+			options: {
+				xAxisLabel: 'Metric',
+				yAxisLabel: 'Day',
+				xLabels: ['Mon', 'Tue'],
+				seriesLabels: ['Sales', 'Costs', 'Profit'],
+			},
+		});
+		expect(columns).toContain('Value');
+		expect(columns).toContain('Sales');
+		expect(columns).toContain('Series');
+		expect(columns).toContain('5');
+		expect(heatmap).toContain('Day');
+		expect(heatmap).toContain('Mon');
+		expect(heatmap).toContain('Sales Costs Profit');
+		expect(heatmap).toContain('Metric');
+	});
+
 	it('renders a matrix-style heatmap', () => {
 		const normalized = normalizeData([
 			[1, 2],

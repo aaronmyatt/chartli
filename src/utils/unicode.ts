@@ -1,8 +1,13 @@
+import {
+	type ChartAnnotations,
+	buildSparseLabelLine,
+	centerText,
+} from './chart-annotations.js';
 import { type NormalizeResult } from './normalize.js';
 
 const BLOCKS = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'] as const;
 
-export interface UnicodeOptions {
+export interface UnicodeOptions extends ChartAnnotations {
 	readonly width?: number;
 }
 
@@ -17,6 +22,7 @@ export function renderUnicode({
 	const numCols = data[0]?.length ?? 0;
 	const numRows = data.length;
 	const chartHeight = 8;
+	const gap = 2;
 
 	const cols: string[][] = [];
 
@@ -41,11 +47,49 @@ export function renderUnicode({
 	// Merge cols side by side
 	const mergedLines =
 		cols[0]?.map((_, lineIdx) =>
-			cols.map((col) => col[lineIdx] ?? '').join('  '),
+			cols.map((col) => col[lineIdx] ?? '').join(' '.repeat(gap)),
 		) ?? [];
+
+	const totalWidth = numCols * numRows + Math.max(0, numCols - 1) * gap;
+	const lines: string[] = [];
+
+	if (options?.yAxisLabel) {
+		lines.push(options.yAxisLabel);
+	}
+
+	if (options?.seriesLabels && numCols > 0) {
+		lines.push(
+			buildSparseLabelLine({
+				width: totalWidth,
+				items: options.seriesLabels.slice(0, numCols).map((label, colIdx) => ({
+					label,
+					center:
+						colIdx * (numRows + gap) + Math.max(0, (numRows - 1) / 2),
+				})),
+			}),
+		);
+	}
+
+	lines.push(...mergedLines);
+
+	if (options?.xLabels && numCols === 1) {
+		lines.push(
+			buildSparseLabelLine({
+				width: numRows,
+				items: options.xLabels.map((label, index) => ({
+					label,
+					center: index,
+				})),
+			}),
+		);
+	}
+
+	if (options?.xAxisLabel) {
+		lines.push(centerText(options.xAxisLabel, Math.max(totalWidth, options.xAxisLabel.length)));
+	}
 
 	// options.width is accepted but not used to resize (data drives width)
 	void options;
 
-	return mergedLines.join('\n');
+	return lines.join('\n');
 }

@@ -1,7 +1,32 @@
 <?xml version='1.0'?>
-<svg xmlns='http://www.w3.org/2000/svg' width='650' height='120' version='1.1'>
-  <polyline stroke='#0072B2ff' stroke-width='1.5' fill='none' points='0,115 53,100 107,86 160,71 213,56 267,42'/>
-  <polyline stroke='#F0E442ff' stroke-width='1.5' fill='none' points='0,115 53,71 107,93 160,27 213,49 267,5'/>
-  <polyline stroke='#009E73ff' stroke-width='1.5' fill='none' points='0,115 53,100 107,71 160,86 213,42 267,56'/>
-  <polyline stroke='#CC79A7ff' stroke-width='1.5' fill='none' points='0,115 53,69 107,100 160,23 213,100 267,23'/>
+<svg xmlns='http://www.w3.org/2000/svg' width='694' height='156' version='1.1'>
+  <rect width='100%' height='100%' fill='#111111'/>
+  <line x1='44' y1='12' x2='44' y2='132' stroke='#666666' stroke-width='1'/>
+  <line x1='44' y1='132' x2='364' y2='132' stroke='#666666' stroke-width='1'/>
+  <line x1='40' y1='12' x2='44' y2='12' stroke='#999999' stroke-width='1'/>
+  <text x='36' y='16' fill='#eeeeee' font-size='11' font-family='mono' text-anchor='end'>1.00</text>
+  <line x1='40' y1='72' x2='44' y2='72' stroke='#999999' stroke-width='1'/>
+  <text x='36' y='76' fill='#eeeeee' font-size='11' font-family='mono' text-anchor='end'>0.50</text>
+  <line x1='40' y1='132' x2='44' y2='132' stroke='#999999' stroke-width='1'/>
+  <text x='36' y='136' fill='#eeeeee' font-size='11' font-family='mono' text-anchor='end'>0.00</text>
+  <polyline stroke='#0072B2ff' stroke-width='1.5' fill='none' points='44,132 108,116 172,100 236,84 300,68 364,52'/>
+  <polyline stroke='#F0E442ff' stroke-width='1.5' fill='none' points='44,132 108,84 172,108 236,36 300,60 364,12'/>
+  <polyline stroke='#009E73ff' stroke-width='1.5' fill='none' points='44,132 108,116 172,84 236,100 300,52 364,68'/>
+  <polyline stroke='#CC79A7ff' stroke-width='1.5' fill='none' points='44,132 108,82 172,115 236,32 300,115 364,32'/>
+  <g transform='translate(394 32)'>
+    <circle cx='-10' cy='-5' r='3.5' fill='#0072B2' stroke='#0072B2'/>
+    <text style='fill: #eeeeee; font-size: 15px; font-family: mono' xml:space='preserve'>day [1, 6]</text>
+  </g>
+  <g transform='translate(394 52)'>
+    <circle cx='-10' cy='-5' r='3.5' fill='#F0E442' stroke='#F0E442'/>
+    <text style='fill: #eeeeee; font-size: 15px; font-family: mono' xml:space='preserve'>sales [10, 20]</text>
+  </g>
+  <g transform='translate(394 72)'>
+    <circle cx='-10' cy='-5' r='3.5' fill='#009E73' stroke='#009E73'/>
+    <text style='fill: #eeeeee; font-size: 15px; font-family: mono' xml:space='preserve'>costs [8, 13]</text>
+  </g>
+  <g transform='translate(394 92)'>
+    <circle cx='-10' cy='-5' r='3.5' fill='#CC79A7' stroke='#CC79A7'/>
+    <text style='fill: #eeeeee; font-size: 15px; font-family: mono' xml:space='preserve'>profit [2, 8]</text>
+  </g>
 </svg>

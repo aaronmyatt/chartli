@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { parseData, normalizeData } from '../src/utils/normalize.js';
+import {
+	parseChartInput,
+	parseData,
+	normalizeData,
+} from '../src/utils/normalize.js';
 
 describe('parseData', () => {
 	it('parses numeric data', () => {
@@ -15,6 +19,13 @@ describe('parseData', () => {
 		const input = 'a b c\n1 2 3';
 		const result = parseData(input);
 		expect(result).toEqual([[1, 2, 3]]);
+	});
+
+	it('returns parsed header metadata', () => {
+		const input = 'day sales costs\n1 10 8';
+		const result = parseChartInput(input);
+		expect(result.headers).toEqual(['day', 'sales', 'costs']);
+		expect(result.rows).toEqual([[1, 10, 8]]);
 	});
 });
 
@@ -37,5 +48,11 @@ describe('normalizeData', () => {
 		const result = normalizeData(rows);
 		expect(result.min[0]).toBe(2);
 		expect(result.max[0]).toBe(8);
+	});
+
+	it('preserves raw values for annotations', () => {
+		const rows = [[2], [8]];
+		const result = normalizeData(rows);
+		expect(result.raw).toEqual(rows);
 	});
 });
