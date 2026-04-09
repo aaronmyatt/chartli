@@ -1,0 +1,37 @@
+{
+	"$schema": "https://jsr.io/schema/config-file.v1.json",
+	"name": "@chartli/chartli",
+	"version": "1.0.0",
+	"license": "Apache-2.0",
+	"exports": {
+		".": "./src/lib.ts",
+		"./ascii": "./src/utils/ascii.ts",
+		"./unicode": "./src/utils/unicode.ts",
+		"./braille": "./src/utils/braille.ts",
+		"./spark": "./src/utils/spark.ts",
+		"./bars": "./src/utils/bars.ts",
+		"./columns": "./src/utils/columns.ts",
+		"./heatmap": "./src/utils/heatmap.ts",
+		"./svg": "./src/utils/svg.ts",
+		"./normalize": "./src/utils/normalize.ts",
+		"./chart-annotations": "./src/utils/chart-annotations.ts"
+	},
+	"publish": {
+		"include": [
+			"src/lib.ts",
+			"src/utils/ascii.ts",
+			"src/utils/unicode.ts",
+			"src/utils/braille.ts",
+			"src/utils/spark.ts",
+			"src/utils/bars.ts",
+			"src/utils/columns.ts",
+			"src/utils/heatmap.ts",
+			"src/utils/svg.ts",
+			"src/utils/normalize.ts",
+			"src/utils/chart-annotations.ts",
+			"README.md",
+			"CHANGELOG.md",
+			"jsr.json"
+		]
+	}
+}

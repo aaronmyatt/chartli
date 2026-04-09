@@ -92,7 +92,9 @@
     "examples": "pnpm run example:all-kitchen-sink",
     "test": "vitest run",
     "lint": "biome check .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "jsr:dry-run": "jsr publish --dry-run",
+    "jsr:publish": "jsr publish"
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
