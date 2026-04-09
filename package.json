@@ -6,6 +6,61 @@
   "bin": {
     "chartli": "./dist/index.js"
   },
+  "main": "./dist/lib.js",
+  "module": "./dist/lib.js",
+  "types": "./dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    },
+    "./ascii": {
+      "types": "./dist/ascii.d.ts",
+      "import": "./dist/ascii.js"
+    },
+    "./unicode": {
+      "types": "./dist/unicode.d.ts",
+      "import": "./dist/unicode.js"
+    },
+    "./braille": {
+      "types": "./dist/braille.d.ts",
+      "import": "./dist/braille.js"
+    },
+    "./spark": {
+      "types": "./dist/spark.d.ts",
+      "import": "./dist/spark.js"
+    },
+    "./bars": {
+      "types": "./dist/bars.d.ts",
+      "import": "./dist/bars.js"
+    },
+    "./columns": {
+      "types": "./dist/columns.d.ts",
+      "import": "./dist/columns.js"
+    },
+    "./heatmap": {
+      "types": "./dist/heatmap.d.ts",
+      "import": "./dist/heatmap.js"
+    },
+    "./svg": {
+      "types": "./dist/svg.d.ts",
+      "import": "./dist/svg.js"
+    },
+    "./normalize": {
+      "types": "./dist/normalize.d.ts",
+      "import": "./dist/normalize.js"
+    },
+    "./chart-annotations": {
+      "types": "./dist/chart-annotations.d.ts",
+      "import": "./dist/chart-annotations.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "chartli": "node dist/index.js",
     "build": "tsup",
